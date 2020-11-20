@@ -6,22 +6,35 @@
 //
 
 import Cocoa
+import SwiftUI
 import UserNotifications
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     var statusBarItem: NSStatusItem!
     var lastBarItem:NSMenuItem? = nil
-    var duration:Float = 60 * 60
+    var duration:Float = 30*60
     var times:[String] = ["30分钟","1小时","2小时"]
     var desc = "1小时"
     var timer:Timer? = nil
+    var relaxTime = 30
+    var displayTimer = Timer()
+    var countdown:Float = 30*60
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         initMenuBar()
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(startTimer), name: NSWorkspace.didWakeNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(stopTimer), name: NSWorkspace.willSleepNotification, object: nil)
     }
+    
+    @objc func timerAction(){
+        countdown-=1
+        let time = Int(countdown)
+        let minutes = time / 60
+        let seconds = time % 60
+        let text = String(format:"%d:%02d", minutes, seconds)
+        statusBarItem.button?.title = text
+        }
 
     @objc func startTimer() {
         initTimer(durtaion: duration)
@@ -38,8 +51,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // Insert code here to initialize your application
         let statusBar = NSStatusBar.system
         statusBarItem = statusBar.statusItem(
-            withLength: NSStatusItem.squareLength)
+            withLength: NSStatusItem.variableLength)
         statusBarItem.button?.image = NSImage(named: "relax")
+        statusBarItem.button?.imagePosition = .imageLeft
+        
         
         let statusBarMenu = NSMenu(title: "休息一下吧")
         
@@ -53,13 +68,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let subMenu = NSMenu()
         for time in times {
             let subMenuItem = NSMenuItem(title: time, action: #selector(changeDuration), keyEquivalent: "")
-            if time == "1小时" {
+            if time == "30分钟" {
                 lastBarItem = subMenuItem
                 subMenuItem.state = .on
                 startTimer()
             }
             subMenu.addItem(subMenuItem)
         }
+        
         statusBarMenu.addItem(menuItem)
         statusBarMenu.setSubmenu(subMenu, for: menuItem)
         
@@ -91,6 +107,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         lastBarItem?.state = .off
         sender.state = .on
         duration = getDuration(title: sender.title)
+        countdown = duration
         desc = sender.title
         lastBarItem = sender
         startTimer()
@@ -114,23 +131,43 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             self.showNotifition()
         }
         timer?.fireDate = Date(timeInterval: TimeInterval(duration), since: Date())
+        
+        displayTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
     }
     
     fileprivate func showNotifition(){
-        removeAllNotifition()
-        let notificationCenter = UNUserNotificationCenter.current()
-        let content = UNMutableNotificationContent()
-        content.title = "休息提示"
-        content.body = "您已经工作\(desc)了，为了保护您的视力，请远眺一会儿吧！"
-        let uuidString = UUID().uuidString
-        let request = UNNotificationRequest(identifier: uuidString,
-                                            content: content, trigger: nil)
-        notificationCenter.requestAuthorization(options: .alert) { (granted, error) in
-            if(granted){
-                notificationCenter.delegate = self
-                notificationCenter.add(request)
-            }
+//        removeAllNotifition()
+//        let notificationCenter = UNUserNotificationCenter.current()
+//        let content = UNMutableNotificationContent()
+//        content.title = "休息提示"
+//        content.body = "您已经工作\(desc)了，为了保护您的视力，请远眺一会儿吧！"
+//        let uuidString = UUID().uuidString
+//        let request = UNNotificationRequest(identifier: uuidString,
+//                                            content: content, trigger: nil)
+//        notificationCenter.requestAuthorization(options: .alert) { (granted, error) in
+//            if(granted){
+//                notificationCenter.delegate = self
+//                notificationCenter.add(request)
+//            }
+//        }
+        for screen in NSScreen.screens
+        {
+            let contentView = relaxView(timeRemaining: relaxTime).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+
+            let width = screen.frame.width
+            let height = screen.frame.height
+            let relaxPanel = NSPanel(contentRect: NSRect(x: 0, y: 0,  width: width , height: height), styleMask: [ .nonactivatingPanel], backing: .buffered, defer: true, screen: screen)
+            relaxPanel.level = .screenSaver
+            relaxPanel.contentView = NSHostingView(rootView: contentView)
+            relaxPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            relaxPanel.orderFrontRegardless()
+            relaxPanel.isOpaque = false
+            relaxPanel.backgroundColor = .clear
+            NSApp.unhide(nil)
         }
+        countdown = duration
+        stopTimer()
+        displayTimer.invalidate()
     }
     
     func removeAllNotifition() {
@@ -154,6 +191,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // Insert code here to tear down your application
     }
     
-    
+    func applicationWillHide(_ notification: Notification) {
+        startTimer()
+    }
+
 }
 

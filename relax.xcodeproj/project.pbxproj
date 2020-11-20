@@ -12,6 +12,7 @@
 		A412F7D5251B4500003CDF68 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A412F7D3251B4500003CDF68 /* Main.storyboard */; };
 		A412F7E1251B4500003CDF68 /* relaxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A412F7E0251B4500003CDF68 /* relaxTests.swift */; };
 		A412F7EC251B4500003CDF68 /* relaxUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A412F7EB251B4500003CDF68 /* relaxUITests.swift */; };
+		FA46A0EC2567668100491B91 /* relaxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA46A0EB2567668100491B91 /* relaxView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		A412F7E7251B4500003CDF68 /* relaxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = relaxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A412F7EB251B4500003CDF68 /* relaxUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = relaxUITests.swift; sourceTree = "<group>"; };
 		A412F7ED251B4500003CDF68 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FA46A0EB2567668100491B91 /* relaxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = relaxView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 				A412F7D3251B4500003CDF68 /* Main.storyboard */,
 				A412F7D6251B4500003CDF68 /* Info.plist */,
 				A412F7D7251B4500003CDF68 /* relax.entitlements */,
+				FA46A0EB2567668100491B91 /* relaxView.swift */,
 			);
 			path = relax;
 			sourceTree = "<group>";
@@ -251,6 +254,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A412F7CE251B44FF003CDF68 /* AppDelegate.swift in Sources */,
+				FA46A0EC2567668100491B91 /* relaxView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -421,7 +425,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = HX74C4S8JH;
+				DEVELOPMENT_TEAM = CHPPFJQ563;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = relax/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -444,7 +448,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = HX74C4S8JH;
+				DEVELOPMENT_TEAM = CHPPFJQ563;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = relax/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
