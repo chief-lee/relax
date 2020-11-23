@@ -111,6 +111,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     
     @objc func settingsAction(){
         stopTimer()
+        for panel in panels
+        {
+            panel.close()
+        }
+        panels.removeAll()
         // Create the window and set the content view.
         let contentView = settingsView(confirmSettingsAction: self.settingsConfirmAction(relaxInterval:relaxTime:), relaxInterval: String(duration/60), relaxTime: String(relaxTime))
         let settingsWindow = NSPanel(
