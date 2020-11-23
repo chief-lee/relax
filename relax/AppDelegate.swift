@@ -21,6 +21,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     var displayTimer = Timer()
     var countdown:Float = 30*60
     
+    var windows: [NSPanel] = []
+    var panels:[NSPanel] = []
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         initMenuBar()
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(startTimer), name: NSWorkspace.didWakeNotification, object: nil)
@@ -45,6 +48,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             timer?.invalidate()
             timer = nil
         }
+        displayTimer.invalidate()
     }
     
     fileprivate func initMenuBar() {
@@ -75,9 +79,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             }
             subMenu.addItem(subMenuItem)
         }
+        let customTime = NSMenuItem(title: "自定义时间", action: #selector(changeDuration), keyEquivalent: "")
+        subMenu.addItem(customTime)
         
         statusBarMenu.addItem(menuItem)
         statusBarMenu.setSubmenu(subMenu, for: menuItem)
+        
+        //添加设置项
+//        let settingsMenuItem = NSMenuItem(title: "设置", action: #selector(settingsAction), keyEquivalent: "")
+//        statusBarMenu.addItem(settingsMenuItem)
         
         // 添加退出菜单
         let exitMenuItem = NSMenuItem(title: "退出", action: #selector(exit), keyEquivalent: "")
@@ -98,6 +108,39 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
     
+    
+    @objc func settingsAction(){
+        stopTimer()
+        // Create the window and set the content view.
+        let contentView = settingsView(confirmSettingsAction: self.settingsConfirmAction(relaxInterval:relaxTime:), relaxInterval: String(duration/60), relaxTime: String(relaxTime))
+        let settingsWindow = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 300, height:300),
+            styleMask: [.titled, .closable],
+            backing: .buffered, defer: true)
+        
+        settingsWindow.setFrameAutosaveName("settings Window")
+        settingsWindow.contentView = NSHostingView(rootView: contentView)
+        settingsWindow.center()
+        NSApp.activate(ignoringOtherApps: true)
+        settingsWindow.makeKeyAndOrderFront(nil)
+        windows.append(settingsWindow)
+    }
+    
+    func settingsConfirmAction(relaxInterval:String,relaxTime:String)
+    {
+        duration = Float(relaxInterval)!*60
+        countdown = duration
+        self.relaxTime = Int(relaxTime)!
+        startTimer()
+        for window in windows
+        {
+            window.close()
+        }
+        windows.removeAll()
+//        NSApp.hide(nil)
+    }
+    
+    
     @objc func exit(){
         removeAllNotifition()
         NSApplication.shared.terminate(self)
@@ -106,11 +149,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     @objc func changeDuration(sender:NSMenuItem) {
         lastBarItem?.state = .off
         sender.state = .on
-        duration = getDuration(title: sender.title)
-        countdown = duration
-        desc = sender.title
-        lastBarItem = sender
-        startTimer()
+        if sender.title == "自定义时间"
+            {
+            self.settingsAction()
+        }
+        else
+        {
+            duration = getDuration(title: sender.title)
+            countdown = duration
+            desc = sender.title
+            lastBarItem = sender
+            startTimer()
+        }
     }
     
     fileprivate func getDuration(title:String) -> Float {
@@ -132,6 +182,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
         timer?.fireDate = Date(timeInterval: TimeInterval(duration), since: Date())
         
+        displayTimer.invalidate()
         displayTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
     }
     
@@ -150,10 +201,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 //                notificationCenter.add(request)
 //            }
 //        }
+        
+        for panel in panels
+        {
+            panel.close()
+        }
+        panels.removeAll()
+        
         for screen in NSScreen.screens
         {
             let contentView = relaxView(timeRemaining: relaxTime).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-
+            
             let width = screen.frame.width
             let height = screen.frame.height
             let relaxPanel = NSPanel(contentRect: NSRect(x: 0, y: 0,  width: width , height: height), styleMask: [ .nonactivatingPanel], backing: .buffered, defer: true, screen: screen)
@@ -164,10 +222,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             relaxPanel.isOpaque = false
             relaxPanel.backgroundColor = .clear
             NSApp.unhide(nil)
+            panels.append(relaxPanel);
         }
+
+        
         countdown = duration
         stopTimer()
-        displayTimer.invalidate()
     }
     
     func removeAllNotifition() {
@@ -194,6 +254,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     func applicationWillHide(_ notification: Notification) {
         startTimer()
     }
-
+    
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        startTimer()
+        return false
+    }
 }
 

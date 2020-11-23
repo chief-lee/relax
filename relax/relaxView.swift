@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct relaxView: View {
-    @State var timeRemaining :Int = 5
+    @State var timeRemaining :Int = 30
 //    @State var currentDate = ""
+    @Environment(\.presentationMode) var presentationMode
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     var body: some View {
         VStack {
@@ -63,7 +64,7 @@ struct relaxView: View {
             }
         }
         .background(Color.black)
-        .opacity(0.95)
+        .opacity(0.9)
     }
 }
 
