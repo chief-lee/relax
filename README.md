@@ -1,6 +1,7 @@
 # relax
 ![Build](https://github.com/Samoy/relax/workflows/Build/badge.svg)
 
+在原代码的基础上修改消息通知为全名覆盖显示，可自定义休息间隔和休息时长
 休息一下吧
 
 ## 介绍
